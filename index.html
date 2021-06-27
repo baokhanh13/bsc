@@ -25,6 +25,7 @@
 
       const render = async () => {
         const isLoggedIn = await fm.user.isLoggedIn();
+        console.log(isLoggedIn);
         /* Show login form if user is not logged in */
         let authHtml = `
           <div class="container">
@@ -76,38 +77,9 @@
               </form>
             </div>
           `;
-          signHtml = `
-            <div class="container">
-              <h1>Sign Message</h1>
-              <form onsubmit="handleSignMsg(event)">
-                <input type="text" name="message" class="full-width" placeholder="Message" />
-                <button id="btn-sign-msg" type="submit">Sign Message</button>
-              </form>
-            </div>
-          `;
-          let contract = new web3.eth.Contract(
-            JSON.parse(contractABI),
-            contractAddress
-          );
-          const currentMessage = await contract.methods.message().call();
-          contractHtml = `
-            <div class="container">
-              <h1>Smart Contract</h1>
-              <div class="info">
-                <a href="https://testnet.bscscan.com/address/${contractAddress}" target="_blank">${contractAddress}</a>
-              </div>
-              <h1>Message</h1>
-              <div class="info">${currentMessage}</div>
-              <form onsubmit="handleUpdateMsg(event)">
-                <input type="text" name="new-message" class="full-width" required="required" placeholder="New Message" />
-                <button id="btn-deploy" onclick="handleDeploy()">New Contract</button>
-                <button id="btn-update-msg" type="submit">Update Message</button>
-              </form>
-            </div>
-          `;
         }
         target.innerHTML =
-          authHtml + userHtml + txnHtml + signHtml + contractHtml;
+          authHtml + userHtml + txnHtml;
       };
 
       const handleLogin = async (e) => {
@@ -135,60 +107,6 @@
           console.log("Completed:", receipt);
           render();
         }
-      };
-
-      const handleSignMsg = async (e) => {
-        e.preventDefault();
-        const message = new FormData(e.target).get("message");
-        if (message) {
-          const userAddress = (await web3.eth.getAccounts())[0];
-          const signedMessage = await web3.eth.personal.sign(
-            message,
-            userAddress
-          );
-          alert(`Signed Message: ${signedMessage}`);
-          console.log(signedMessage);
-        }
-      };
-
-      const handleUpdateMsg = async (e) => {
-        e.preventDefault();
-        const newMessage = new FormData(e.target).get("new-message");
-        if (newMessage) {
-          const btnUpdateMsg = document.getElementById("btn-update-msg");
-          btnUpdateMsg.disabled = true;
-          btnUpdateMsg.innerText = "Updating...";
-          const fromAddress = (await web3.eth.getAccounts())[0];
-          const contract = new web3.eth.Contract(
-            JSON.parse(contractABI),
-            contractAddress
-          );
-          const receipt = await contract.methods
-            .update(newMessage)
-            .send({ from: fromAddress });
-          console.log("Completed:", receipt);
-          render();
-        }
-      };
-
-      const handleDeploy = async () => {
-        const btnDeploy = document.getElementById("btn-deploy");
-        btnDeploy.disabled = true;
-        btnDeploy.innerText = "Deploying...";
-        const fromAddress = (await web3.eth.getAccounts())[0];
-        const contract = new web3.eth.Contract(JSON.parse(contractABI));
-        const contractInstance = await contract
-          .deploy({
-            data: contractByteCode,
-            arguments: ["Hello World!"]
-          })
-          .send({
-            from: fromAddress,
-            gas: 910000
-          });
-        console.log("Completed:", contractInstance.options);
-        contractAddress = contractInstance.options.address;
-        render();
       };
 
       const handleLogout = async () => {

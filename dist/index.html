@@ -27,7 +27,7 @@ var contractAddress = "0x1fb4F955aEF63f5e3B8754fE32a9399864fc1b54";
 
 var render = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-    var isLoggedIn, authHtml, userHtml, txnHtml, signHtml, contractHtml, target, userMetadata, network, userAddress, userBalance, contract, currentMessage;
+    var isLoggedIn, authHtml, userHtml, txnHtml, signHtml, contractHtml, target, userMetadata, network, userAddress, userBalance;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -37,8 +37,9 @@ var render = /*#__PURE__*/function () {
 
           case 2:
             isLoggedIn = _context.sent;
-
+            console.log(isLoggedIn);
             /* Show login form if user is not logged in */
+
             authHtml = "\n          <div class=\"container\">\n            <h1>Please sign up or login</h1>\n            <form onsubmit=\"handleLogin(event)\">\n              <button type=\"submit\">Sign Up / Login</button>\n            </form>\n          </div>\n        ";
             userHtml = "";
             txnHtml = "";
@@ -47,48 +48,40 @@ var render = /*#__PURE__*/function () {
             target = document.querySelector("#app");
 
             if (!isLoggedIn) {
-              _context.next = 33;
+              _context.next = 28;
               break;
             }
 
-            _context.next = 12;
+            _context.next = 13;
             return fm.user.getUser();
 
-          case 12:
+          case 13:
             userMetadata = _context.sent;
-            _context.next = 15;
+            _context.next = 16;
             return web3.eth.net.getNetworkType();
 
-          case 15:
+          case 16:
             network = _context.sent;
-            _context.next = 18;
+            _context.next = 19;
             return web3.eth.getAccounts();
 
-          case 18:
+          case 19:
             userAddress = _context.sent[0];
             _context.t0 = web3.utils;
-            _context.next = 22;
+            _context.next = 23;
             return web3.eth.getBalance(userAddress);
 
-          case 22:
+          case 23:
             _context.t1 = _context.sent;
             userBalance = _context.t0.fromWei.call(_context.t0, _context.t1);
             authHtml = "\n            <div class=\"container\">\n              <h1>Current user: ".concat(userMetadata.email, "</h1>\n              <button onclick=\"handleLogout()\">Logout</button>\n            </div>\n          ");
             userHtml = "\n            <div class=\"container\">\n              <h1>Binance Smart Chain Address</h1>\n              <div class=\"info\">\n                <a href=\"https://testnet.bscscan.com/address/".concat(userAddress, "\" target=\"_blank\">").concat(userAddress, "</a>\n              </div>\n              <h1>Network</h1>\n              <div class=\"info\">").concat(network, "</div>\n              <h1>Balance</h1>\n              <div class=\"info\">").concat(userBalance, " BNB</div>\n              <a href=\"https://testnet.binance.org/faucet-smart\" target=\"_blank\">Get Test BNB</a>\n            </div>\n          ");
             txnHtml = "\n            <div class=\"container\">\n              <h1>Send Transaction</h1>\n              <form onsubmit=\"handleSendTxn(event)\">\n                <input type=\"text\" name=\"destination\" class=\"full-width\" required=\"required\" placeholder=\"Destination address\" />\n                <input type=\"text\" name=\"amount\" class=\"full-width\" required=\"required\" placeholder=\"Amount in BNB\" />\n                <button id=\"btn-send-txn\" type=\"submit\">Send Transaction</button>\n              </form>\n            </div>\n          ";
-            signHtml = "\n            <div class=\"container\">\n              <h1>Sign Message</h1>\n              <form onsubmit=\"handleSignMsg(event)\">\n                <input type=\"text\" name=\"message\" class=\"full-width\" placeholder=\"Message\" />\n                <button id=\"btn-sign-msg\" type=\"submit\">Sign Message</button>\n              </form>\n            </div>\n          ";
-            contract = new web3.eth.Contract(JSON.parse(contractABI), contractAddress);
-            _context.next = 31;
-            return contract.methods.message().call();
 
-          case 31:
-            currentMessage = _context.sent;
-            contractHtml = "\n            <div class=\"container\">\n              <h1>Smart Contract</h1>\n              <div class=\"info\">\n                <a href=\"https://testnet.bscscan.com/address/".concat(contractAddress, "\" target=\"_blank\">").concat(contractAddress, "</a>\n              </div>\n              <h1>Message</h1>\n              <div class=\"info\">").concat(currentMessage, "</div>\n              <form onsubmit=\"handleUpdateMsg(event)\">\n                <input type=\"text\" name=\"new-message\" class=\"full-width\" required=\"required\" placeholder=\"New Message\" />\n                <button id=\"btn-deploy\" onclick=\"handleDeploy()\">New Contract</button>\n                <button id=\"btn-update-msg\" type=\"submit\">Update Message</button>\n              </form>\n            </div>\n          ");
+          case 28:
+            target.innerHTML = authHtml + userHtml + txnHtml;
 
-          case 33:
-            target.innerHTML = authHtml + userHtml + txnHtml + signHtml + contractHtml;
-
-          case 34:
+          case 29:
           case "end":
             return _context.stop();
         }
@@ -178,145 +171,13 @@ var handleSendTxn = /*#__PURE__*/function () {
   };
 }();
 
-var handleSignMsg = /*#__PURE__*/function () {
-  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(e) {
-    var message, userAddress, signedMessage;
+var handleLogout = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
     return regeneratorRuntime.wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
-            e.preventDefault();
-            message = new FormData(e.target).get("message");
-
-            if (!message) {
-              _context4.next = 11;
-              break;
-            }
-
-            _context4.next = 5;
-            return web3.eth.getAccounts();
-
-          case 5:
-            userAddress = _context4.sent[0];
-            _context4.next = 8;
-            return web3.eth.personal.sign(message, userAddress);
-
-          case 8:
-            signedMessage = _context4.sent;
-            alert("Signed Message: ".concat(signedMessage));
-            console.log(signedMessage);
-
-          case 11:
-          case "end":
-            return _context4.stop();
-        }
-      }
-    }, _callee4);
-  }));
-
-  return function handleSignMsg(_x3) {
-    return _ref4.apply(this, arguments);
-  };
-}();
-
-var handleUpdateMsg = /*#__PURE__*/function () {
-  var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(e) {
-    var newMessage, btnUpdateMsg, fromAddress, contract, receipt;
-    return regeneratorRuntime.wrap(function _callee5$(_context5) {
-      while (1) {
-        switch (_context5.prev = _context5.next) {
-          case 0:
-            e.preventDefault();
-            newMessage = new FormData(e.target).get("new-message");
-
-            if (!newMessage) {
-              _context5.next = 15;
-              break;
-            }
-
-            btnUpdateMsg = document.getElementById("btn-update-msg");
-            btnUpdateMsg.disabled = true;
-            btnUpdateMsg.innerText = "Updating...";
-            _context5.next = 8;
-            return web3.eth.getAccounts();
-
-          case 8:
-            fromAddress = _context5.sent[0];
-            contract = new web3.eth.Contract(JSON.parse(contractABI), contractAddress);
-            _context5.next = 12;
-            return contract.methods.update(newMessage).send({
-              from: fromAddress
-            });
-
-          case 12:
-            receipt = _context5.sent;
-            console.log("Completed:", receipt);
-            render();
-
-          case 15:
-          case "end":
-            return _context5.stop();
-        }
-      }
-    }, _callee5);
-  }));
-
-  return function handleUpdateMsg(_x4) {
-    return _ref5.apply(this, arguments);
-  };
-}();
-
-var handleDeploy = /*#__PURE__*/function () {
-  var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
-    var btnDeploy, fromAddress, contract, contractInstance;
-    return regeneratorRuntime.wrap(function _callee6$(_context6) {
-      while (1) {
-        switch (_context6.prev = _context6.next) {
-          case 0:
-            btnDeploy = document.getElementById("btn-deploy");
-            btnDeploy.disabled = true;
-            btnDeploy.innerText = "Deploying...";
-            _context6.next = 5;
-            return web3.eth.getAccounts();
-
-          case 5:
-            fromAddress = _context6.sent[0];
-            contract = new web3.eth.Contract(JSON.parse(contractABI));
-            _context6.next = 9;
-            return contract.deploy({
-              data: contractByteCode,
-              arguments: ["Hello World!"]
-            }).send({
-              from: fromAddress,
-              gas: 910000
-            });
-
-          case 9:
-            contractInstance = _context6.sent;
-            console.log("Completed:", contractInstance.options);
-            contractAddress = contractInstance.options.address;
-            render();
-
-          case 13:
-          case "end":
-            return _context6.stop();
-        }
-      }
-    }, _callee6);
-  }));
-
-  return function handleDeploy() {
-    return _ref6.apply(this, arguments);
-  };
-}();
-
-var handleLogout = /*#__PURE__*/function () {
-  var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
-    return regeneratorRuntime.wrap(function _callee7$(_context7) {
-      while (1) {
-        switch (_context7.prev = _context7.next) {
-          case 0:
-            _context7.next = 2;
+            _context4.next = 2;
             return fm.user.logout();
 
           case 2:
@@ -324,14 +185,14 @@ var handleLogout = /*#__PURE__*/function () {
 
           case 3:
           case "end":
-            return _context7.stop();
+            return _context4.stop();
         }
       }
-    }, _callee7);
+    }, _callee4);
   }));
 
   return function handleLogout() {
-    return _ref7.apply(this, arguments);
+    return _ref4.apply(this, arguments);
   };
 }();</script>
   <script src="/styles.8986bff4.js"></script></head>
